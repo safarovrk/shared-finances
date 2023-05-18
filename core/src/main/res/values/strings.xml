@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_login">Вход</string>
+    <string name="title_registration">Регистрация</string>
+    <string name="title_list_journals">Список журналов</string>
+    <string name="title_journal_creation">Создание журнала</string>
+    <string name="title_home">Домашняя страница</string>
+    <string name="title_categories">Категории</string>
+    <string name="title_category_creation">Создание категории</string>
+    <string name="title_chart">Диаграммa</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_invitations">Приглашения</string>
+    <string name="title_user_invitation">Пригласить пользователя</string>
+    <string name="title_journal">Журнал</string>
+    <string name="note_creation">Создание записи\n</string>
+    <string name="note_edit">Редактирование записи</string>
+
+</resources>
