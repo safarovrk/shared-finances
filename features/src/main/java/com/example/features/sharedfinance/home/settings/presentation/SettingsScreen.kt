@@ -22,10 +22,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.FolderDelete
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
@@ -51,6 +53,7 @@ import com.example.core.utils.Constants
 import com.example.features.R
 import com.example.features.sharedfinance.list_journals.presentation.JournalCreationDialog
 import com.example.features.sharedfinance.list_journals.presentation.ListJournalsEvent
+import com.example.features.sharedfinance.login.presentation.LoginViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -72,12 +75,18 @@ fun SettingsScreen(
                     router.routeTo(Screen.Login.screenName)
                 }
 
-                SettingsViewModel.UiEvent.RouteToChangeJournal -> {
+                is SettingsViewModel.UiEvent.RouteToChangeJournal -> {
                     router.routeTo(Screen.ListJournals.screenName)
                 }
 
-                SettingsViewModel.UiEvent.RouteToInvitations -> {
+                is SettingsViewModel.UiEvent.RouteToInvitations -> {
                     router.routeTo(Screen.Invitations.screenName)
+                }
+
+                is SettingsViewModel.UiEvent.ShowSnackBar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = context.resources.getString(event.messageId)
+                    )
                 }
             }
         }
@@ -231,6 +240,28 @@ fun SettingsScreen(
                     }
                     Divider(color = CustomTheme.colors.background.photo, thickness = 1.dp)
                 }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.onEvent(SettingsEvent.ExitJournalClicked) }
+                        .padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BookmarkRemove,
+                        contentDescription = Icons.Default.BookmarkRemove.name,
+                        tint = CustomTheme.colors.icon.disabled
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(
+                        text = stringResource(R.string.exit_from_journal),
+                        style = CustomTheme.typography.text.mediumNormal,
+                        color = CustomTheme.colors.text.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.wrapContentHeight()
+                    )
+                }
+                Divider(color = CustomTheme.colors.background.photo, thickness = 1.dp)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

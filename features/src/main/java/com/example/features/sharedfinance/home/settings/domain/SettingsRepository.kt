@@ -7,4 +7,6 @@ import retrofit2.http.POST
 
 interface SettingsRepository {
     suspend fun inviteUser(inviteRequest: InviteRequest): Response<ResponseBody>
+
+    suspend fun exitJournal(exitJournalRequest: ExitJournalRequest): Response<ResponseBody>
 }

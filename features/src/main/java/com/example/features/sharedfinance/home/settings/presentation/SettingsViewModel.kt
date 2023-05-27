@@ -13,13 +13,10 @@ import com.example.core.utils.Resource
 import com.example.core.utils.TextFieldState
 import com.example.core.utils.UserRoleState
 import com.example.features.R
+import com.example.features.sharedfinance.home.settings.domain.ExitJournalRequest
+import com.example.features.sharedfinance.home.settings.domain.ExitJournalUseCase
 import com.example.features.sharedfinance.home.settings.domain.InviteRequest
 import com.example.features.sharedfinance.home.settings.domain.InviteUserUseCase
-import com.example.features.sharedfinance.list_journals.domain.CreateJournalRequest
-import com.example.features.sharedfinance.list_journals.presentation.JournalCreationDialogState
-import com.example.features.sharedfinance.list_journals.presentation.ListJournalsEvent
-import com.example.features.sharedfinance.list_journals.presentation.ListJournalsState
-import com.example.features.sharedfinance.list_journals.presentation.ListJournalsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -34,13 +31,15 @@ class SettingsViewModel @Inject constructor(
     private val getRoleUseCase: GetRoleUseCase,
     private val inviteUserUseCase: InviteUserUseCase,
     private val getLoginUseCase: GetLoginUseCase,
-    private val getJournalUseCase: GetJournalUseCase
+    private val getJournalUseCase: GetJournalUseCase,
+    private val exitJournalUseCase: ExitJournalUseCase
 ) : ViewModel() {
 
     sealed class UiEvent {
         object LogOut : UiEvent()
         object RouteToChangeJournal : UiEvent()
         object RouteToInvitations : UiEvent()
+        data class ShowSnackBar(val messageId: Int) : UiEvent()
     }
 
     companion object {
@@ -48,6 +47,8 @@ class SettingsViewModel @Inject constructor(
         const val ALREADY_USING_CODE = 409
         const val INVITATION_SENT_CODE = 201
         const val ALREADY_SENT_CODE = 303
+        const val SUCCESS_CODE = 200
+        const val INTERNAL_ERROR_CODE = 500
 
     }
 
@@ -115,6 +116,10 @@ class SettingsViewModel @Inject constructor(
                         text = event.value
                     )
                 }
+
+                is SettingsEvent.ExitJournalClicked -> {
+                    exitJournal()
+                }
             }
         }
     }
@@ -138,6 +143,34 @@ class SettingsViewModel @Inject constructor(
                 journalName = getJournalUseCase.invoke(),
                 role = roleString
             )
+        }
+    }
+
+    private fun exitJournal() {
+        viewModelScope.launch {
+            exitJournalUseCase(
+                ExitJournalRequest(
+                    login = getLoginUseCase.invoke(),
+                    journalName = getJournalUseCase.invoke()
+                )
+            ).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        when(result.data?.code()) {
+                            SUCCESS_CODE -> {
+                                _eventFlow.emit(UiEvent.RouteToChangeJournal)
+                            }
+                            INTERNAL_ERROR_CODE -> {
+                                _eventFlow.emit(UiEvent.ShowSnackBar(R.string.unexpected_error))
+                            }
+                        }
+                    }
+                    is Resource.Error -> {
+                        _eventFlow.emit(UiEvent.ShowSnackBar(result.messageId ?: R.string.unexpected_error))
+                    }
+                    is Resource.Loading -> { }
+                }
+            }.launchIn(viewModelScope)
         }
     }
 
