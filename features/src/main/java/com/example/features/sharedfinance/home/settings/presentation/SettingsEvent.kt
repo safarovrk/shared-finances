@@ -8,4 +8,5 @@ sealed class SettingsEvent {
     data class OnInvitationSubmit(val userName: String, val role: String): SettingsEvent()
     object OnInvitationDismiss : SettingsEvent()
     data class EnteredUserName(val value: String): SettingsEvent()
+    object ExitJournalClicked : SettingsEvent()
 }
